@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: rider-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm run render-start
+    healthCheckPath: /api/riders
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        value: mongodb+srv://thabuthavanesan:vV3h56cTA72JpsMa@cluster0.5r8jyna.mongodb.net/rider-management?retryWrites=true&w=majority&appName=Cluster0
+      - key: CORS_ORIGIN
+        value: "*"

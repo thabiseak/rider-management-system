@@ -1,0 +1,814 @@
+.rider-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.rider-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.rider-card:hover::before {
+  transform: scaleX(1);
+}
+
+.rider-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+/* Card Header */
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.rider-avatar {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.avatar-placeholder {
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.rider-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.rider-name-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.rider-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Dark mode styles for rider name */
+.dark-mode .rider-name {
+  color: #ffffff;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.status-badge.status-active {
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #059669;
+}
+
+.status-badge.status-inactive {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #dc2626;
+}
+
+.status-badge.status-premium {
+  background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+  color: #7c3aed;
+}
+
+.status-badge.status-default {
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  color: #6b7280;
+}
+
+.rider-position {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Dark mode styles for rider position */
+.dark-mode .rider-position {
+  color: #9ca3af;
+}
+
+/* Card Content */
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.contact-item:hover {
+  background: rgba(102, 126, 234, 0.05);
+  transform: translateX(4px);
+}
+
+.contact-icon {
+  color: #667eea;
+  flex-shrink: 0;
+}
+
+.contact-text {
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+/* Dark mode styles for contact text */
+.dark-mode .contact-text {
+  color: #d1d5db;
+}
+
+/* Vehicle Section */
+.vehicle-section {
+  background: rgba(243, 244, 246, 0.8);
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  transition: all 0.3s ease;
+}
+
+.vehicle-section:hover {
+  background: rgba(243, 244, 246, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+/* Dark mode styles for section title */
+.dark-mode .section-title {
+  color: #d1d5db;
+}
+
+.vehicle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.vehicle-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.vehicle-label {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Dark mode styles for vehicle label */
+.dark-mode .vehicle-label {
+  color: #9ca3af;
+}
+
+.vehicle-value {
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Dark mode styles for vehicle value */
+.dark-mode .vehicle-value {
+  color: #d1d5db;
+}
+
+/* NRIC Section */
+.nric-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: rgba(102, 126, 234, 0.05);
+  transition: all 0.2s ease;
+}
+
+.nric-section:hover {
+  background: rgba(102, 126, 234, 0.1);
+  transform: translateX(4px);
+}
+
+.nric-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.nric-item:hover {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.nric-icon {
+  color: #667eea;
+  flex-shrink: 0;
+}
+
+.nric-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.nric-label {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Dark mode styles for NRIC label */
+.dark-mode .nric-label {
+  color: #9ca3af;
+}
+
+.nric-value {
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Dark mode styles for NRIC value */
+.dark-mode .nric-value {
+  color: #d1d5db;
+}
+
+/* Card Actions */
+.card-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.action-btn:hover::before {
+  left: 100%;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.view-btn {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+  color: white;
+  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+}
+
+.view-btn:hover {
+  background: linear-gradient(135deg, #0891b2, #0e7490);
+  box-shadow: 0 8px 25px rgba(6, 182, 212, 0.4);
+  transform: translateY(-2px);
+}
+
+.edit-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.edit-btn:hover {
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+}
+
+.delete-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.delete-btn:hover {
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .rider-card {
+    padding: 1rem;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .rider-name-section {
+    justify-content: center;
+  }
+  
+  .card-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .action-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .rider-card {
+    padding: 0.75rem;
+  }
+  
+  .rider-name {
+    font-size: 1.125rem;
+  }
+  
+  .contact-item {
+    padding: 0.25rem;
+  }
+  
+  .vehicle-section,
+  .nric-section {
+    padding: 0.75rem;
+  }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Tablet (768px to 991px) */
+@media (max-width: 991px) {
+  .premium-card {
+    padding: 1.5rem;
+  }
+  
+  .card-header {
+    gap: 1rem;
+  }
+  
+  .rider-name {
+    font-size: 1.125rem;
+  }
+  
+  .status-badge {
+    padding: 0.2rem 0.6rem;
+    font-size: 0.7rem;
+  }
+  
+  .card-content {
+    gap: 1rem;
+  }
+  
+  .contact-info {
+    gap: 0.6rem;
+  }
+  
+  .contact-item {
+    padding: 0.4rem;
+  }
+  
+  .vehicle-section {
+    gap: 0.75rem;
+  }
+  
+  .vehicle-item {
+    padding: 0.4rem;
+  }
+  
+  .nric-section {
+    padding: 0.6rem;
+  }
+  
+  .nric-item {
+    padding: 0.4rem;
+  }
+  
+  .action-buttons {
+    gap: 0.75rem;
+  }
+  
+  .action-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Mobile Large (576px to 767px) */
+@media (max-width: 767px) {
+  .premium-card {
+    padding: 1.25rem;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .rider-name {
+    font-size: 1rem;
+  }
+  
+  .status-badge {
+    align-self: flex-start;
+    padding: 0.15rem 0.5rem;
+    font-size: 0.65rem;
+  }
+  
+  .card-content {
+    gap: 0.875rem;
+  }
+  
+  .contact-info {
+    gap: 0.5rem;
+  }
+  
+  .contact-item {
+    padding: 0.35rem;
+  }
+  
+  .contact-text {
+    font-size: 0.8rem;
+  }
+  
+  .vehicle-section {
+    gap: 0.6rem;
+  }
+  
+  .vehicle-item {
+    padding: 0.35rem;
+  }
+  
+  .vehicle-label {
+    font-size: 0.65rem;
+  }
+  
+  .vehicle-value {
+    font-size: 0.8rem;
+  }
+  
+  .nric-section {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  .nric-item {
+    padding: 0.35rem;
+  }
+  
+  .nric-label {
+    font-size: 0.65rem;
+  }
+  
+  .nric-value {
+    font-size: 0.8rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .action-btn {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Mobile Small (up to 575px) */
+@media (max-width: 575px) {
+  .premium-card {
+    padding: 1rem;
+  }
+  
+  .card-header {
+    gap: 0.6rem;
+  }
+  
+  .rider-name {
+    font-size: 0.95rem;
+  }
+  
+  .status-badge {
+    padding: 0.1rem 0.4rem;
+    font-size: 0.6rem;
+  }
+  
+  .card-content {
+    gap: 0.75rem;
+  }
+  
+  .contact-info {
+    gap: 0.4rem;
+  }
+  
+  .contact-item {
+    padding: 0.3rem;
+  }
+  
+  .contact-text {
+    font-size: 0.75rem;
+  }
+  
+  .vehicle-section {
+    gap: 0.5rem;
+  }
+  
+  .vehicle-item {
+    padding: 0.3rem;
+  }
+  
+  .vehicle-label {
+    font-size: 0.6rem;
+  }
+  
+  .vehicle-value {
+    font-size: 0.75rem;
+  }
+  
+  .nric-section {
+    padding: 0.4rem;
+    gap: 0.4rem;
+  }
+  
+  .nric-item {
+    padding: 0.3rem;
+  }
+  
+  .nric-label {
+    font-size: 0.6rem;
+  }
+  
+  .nric-value {
+    font-size: 0.75rem;
+  }
+  
+  .action-buttons {
+    gap: 0.4rem;
+  }
+  
+  .action-btn {
+    padding: 0.4rem;
+    font-size: 0.7rem;
+  }
+}
+
+/* Extra Small Mobile (up to 375px) */
+@media (max-width: 375px) {
+  .premium-card {
+    padding: 0.875rem;
+  }
+  
+  .card-header {
+    gap: 0.5rem;
+  }
+  
+  .rider-name {
+    font-size: 0.9rem;
+  }
+  
+  .status-badge {
+    padding: 0.1rem 0.35rem;
+    font-size: 0.55rem;
+  }
+  
+  .card-content {
+    gap: 0.6rem;
+  }
+  
+  .contact-info {
+    gap: 0.35rem;
+  }
+  
+  .contact-item {
+    padding: 0.25rem;
+  }
+  
+  .contact-text {
+    font-size: 0.7rem;
+  }
+  
+  .vehicle-section {
+    gap: 0.4rem;
+  }
+  
+  .vehicle-item {
+    padding: 0.25rem;
+  }
+  
+  .vehicle-label {
+    font-size: 0.55rem;
+  }
+  
+  .vehicle-value {
+    font-size: 0.7rem;
+  }
+  
+  .nric-section {
+    padding: 0.35rem;
+    gap: 0.35rem;
+  }
+  
+  .nric-item {
+    padding: 0.25rem;
+  }
+  
+  .nric-label {
+    font-size: 0.55rem;
+  }
+  
+  .nric-value {
+    font-size: 0.7rem;
+  }
+  
+  .action-buttons {
+    gap: 0.35rem;
+  }
+  
+  .action-btn {
+    padding: 0.35rem;
+    font-size: 0.65rem;
+  }
+}
+
+/* Landscape Mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .premium-card {
+    padding: 0.75rem;
+  }
+  
+  .card-header {
+    gap: 0.5rem;
+  }
+  
+  .rider-name {
+    font-size: 0.9rem;
+  }
+  
+  .card-content {
+    gap: 0.5rem;
+  }
+  
+  .contact-info {
+    gap: 0.3rem;
+  }
+  
+  .contact-item {
+    padding: 0.25rem;
+  }
+  
+  .vehicle-section {
+    gap: 0.4rem;
+  }
+  
+  .vehicle-item {
+    padding: 0.25rem;
+  }
+  
+  .nric-section {
+    padding: 0.3rem;
+    gap: 0.3rem;
+  }
+  
+  .nric-item {
+    padding: 0.25rem;
+  }
+  
+  .action-buttons {
+    gap: 0.3rem;
+  }
+  
+  .action-btn {
+    padding: 0.3rem;
+    font-size: 0.65rem;
+  }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .premium-card {
+    border-width: 0.5px;
+  }
+  
+  .status-badge {
+    border-width: 0.5px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .premium-card {
+    box-shadow: none;
+    border: 1px solid #000;
+    break-inside: avoid;
+  }
+  
+  .action-buttons {
+    display: none;
+  }
+  
+  .status-badge {
+    border: 1px solid #000;
+  }
+}
