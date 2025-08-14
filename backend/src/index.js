@@ -9,39 +9,91 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/database');
 const Rider = require('./models/Rider');
+const mongoose = require('mongoose'); // Added for health check
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 
-// Connect to MongoDB
-connectDB();
+// Fallback data source for development
+let useLocalData = false;
+let localRiders = [];
 
-// CORS configuration for production
+// Load local data if available
+function loadLocalData() {
+  try {
+    const dataPath = path.join(__dirname, 'riders.json');
+    if (fs.existsSync(dataPath)) {
+      const data = fs.readFileSync(dataPath, 'utf8');
+      localRiders = JSON.parse(data);
+      console.log(`📁 Loaded ${localRiders.length} riders from local JSON file`);
+      return true;
+    }
+  } catch (error) {
+    console.log('📁 No local data file found or error reading it');
+  }
+  return false;
+}
+
+// CORS configuration with better environment handling
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? [process.env.CORS_ORIGIN || '*'] 
-    : ['http://localhost:3000', 'http://192.168.1.71:3000', 'http://127.0.0.1:3000'],
-  credentials: true
+    ? (process.env.CORS_ORIGIN === '*' ? '*' : process.env.CORS_ORIGIN?.split(',') || ['*'])
+    : (process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000', 'http://192.168.1.71:3000', 'http://127.0.0.1:3000']),
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
 app.use(cors(corsOptions));
 
-// Add logging middleware
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-  next();
-});
+// Add logging middleware based on environment
+if (process.env.ENABLE_REQUEST_LOGGING !== 'false') {
+  app.use((req, res, next) => {
+    const timestamp = new Date().toISOString();
+    const method = req.method;
+    const path = req.path;
+    const userAgent = req.get('User-Agent') || 'Unknown';
+    const ip = req.ip || req.connection.remoteAddress || 'Unknown';
+    
+    console.log(`📝 ${timestamp} - ${method} ${path} - IP: ${ip} - UA: ${userAgent}`);
+    next();
+  });
+}
 
-// Body parsing middleware with increased limits
+// Body parsing middleware with configurable limits
+const bodyLimit = process.env.REQUEST_BODY_LIMIT || '50mb';
+const timeoutMs = parseInt(process.env.REQUEST_TIMEOUT_MS) || 30000;
+
 app.use(express.json({ 
-  limit: '50mb',
+  limit: bodyLimit,
   verify: (req, res, buf) => {
     req.rawBody = buf;
   }
 }));
 app.use(express.urlencoded({ 
-  limit: '50mb', 
+  limit: bodyLimit, 
   extended: true 
 }));
+
+// Request timeout middleware
+app.use((req, res, next) => {
+  req.setTimeout(timeoutMs, () => {
+    res.status(408).json({ error: 'Request timeout' });
+  });
+  next();
+});
+
+// Database connection check middleware
+app.use((req, res, next) => {
+  if (mongoose.connection.readyState !== 1 && !useLocalData) {
+    return res.status(503).json({ 
+      error: 'Database not connected', 
+      details: ['Please try again in a moment. The database is still connecting.'] 
+    });
+  }
+  next();
+});
 
 // Validation function
 function validateRiderFields(data) {
@@ -89,6 +141,12 @@ function validateRiderFields(data) {
 // Seed initial data if database is empty
 async function seedInitialData() {
   try {
+    // Check if database is connected
+    if (mongoose.connection.readyState !== 1) {
+      console.log('⏳ Database not ready yet, skipping seeding for now');
+      return;
+    }
+    
     const count = await Rider.countDocuments();
     if (count === 0) {
       const initialRiders = [
@@ -135,6 +193,8 @@ async function seedInitialData() {
       
       await Rider.insertMany(initialRiders);
       console.log('✅ Initial riders seeded to database');
+    } else {
+      console.log(`🌱 Database already has ${count} riders, skipping seeding`);
     }
   } catch (error) {
     console.error('❌ Error seeding initial data:', error);
@@ -148,31 +208,59 @@ app.get('/api/riders', async (req, res) => {
   try {
     const { search = '', page = 1, limit = 10, status = 'all' } = req.query;
     
-    // Build query
-    let query = {};
-    
-    // Search by name, email, or NRIC
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { nric: { $regex: search, $options: 'i' } }
-      ];
+    if (useLocalData) {
+      // Use local JSON data
+      let filteredRiders = [...localRiders];
+      
+      // Apply search filter
+      if (search) {
+        filteredRiders = filteredRiders.filter(rider => 
+          rider.name.toLowerCase().includes(search.toLowerCase()) ||
+          rider.email.toLowerCase().includes(search.toLowerCase()) ||
+          rider.nric.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+      
+      // Apply status filter
+      if (status && status !== 'all') {
+        filteredRiders = filteredRiders.filter(rider => rider.status === status);
+      }
+      
+      // Apply pagination
+      const total = filteredRiders.length;
+      const startIndex = (parseInt(page) - 1) * parseInt(limit);
+      const endIndex = startIndex + parseInt(limit);
+      const paginatedRiders = filteredRiders.slice(startIndex, endIndex);
+      
+      res.json({ riders: paginatedRiders, total });
+    } else {
+      // Use MongoDB
+      // Build query
+      let query = {};
+      
+      // Search by name, email, or NRIC
+      if (search) {
+        query.$or = [
+          { name: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } },
+          { nric: { $regex: search, $options: 'i' } }
+        ];
+      }
+      
+      // Filter by status
+      if (status && status !== 'all') {
+        query.status = status;
+      }
+      
+      // Execute query with pagination
+      const total = await Rider.countDocuments(query);
+      const riders = await Rider.find(query)
+        .sort({ createdAt: -1 })
+        .limit(parseInt(limit))
+        .skip((parseInt(page) - 1) * parseInt(limit));
+      
+      res.json({ riders, total });
     }
-    
-    // Filter by status
-    if (status && status !== 'all') {
-      query.status = status;
-    }
-    
-    // Execute query with pagination
-    const total = await Rider.countDocuments(query);
-    const riders = await Rider.find(query)
-      .sort({ createdAt: -1 })
-      .limit(parseInt(limit))
-      .skip((parseInt(page) - 1) * parseInt(limit));
-    
-    res.json({ riders, total });
   } catch (err) {
     console.error('Error fetching riders:', err);
     res.status(500).json({ error: 'Failed to fetch riders', details: [err.message] });
@@ -293,6 +381,42 @@ app.delete('/api/riders/:id', async (req, res) => {
   }
 });
 
+// Health check endpoint
+app.get('/api/health', async (req, res) => {
+  try {
+    const dbStatus = useLocalData ? 'local_data' : (mongoose.connection.readyState === 1 ? 'connected' : 'disconnected');
+    const uptime = process.uptime();
+    const memoryUsage = process.memoryUsage();
+    
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      dataSource: useLocalData ? 'local_json' : 'mongodb',
+      database: {
+        status: dbStatus,
+        host: useLocalData ? 'local' : (mongoose.connection.host || 'unknown'),
+        name: useLocalData ? 'riders.json' : (mongoose.connection.name || 'unknown'),
+        records: useLocalData ? localRiders.length : 'unknown'
+      },
+      server: {
+        uptime: `${Math.floor(uptime / 60)}m ${Math.floor(uptime % 60)}s`,
+        memory: {
+          rss: `${Math.round(memoryUsage.rss / 1024 / 1024)}MB`,
+          heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)}MB`,
+          heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)}MB`
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'unhealthy',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   if (err.type === 'entity.too.large') {
@@ -316,10 +440,42 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  // Seed initial data after server starts
-  seedInitialData();
-});
+// Connect to MongoDB and start server
+async function startServer() {
+  try {
+    // Try to connect to MongoDB
+    await connectDB();
+    console.log('✅ Connected to MongoDB successfully');
+  } catch (error) {
+    console.error('❌ MongoDB connection failed, falling back to local data');
+    useLocalData = true;
+    loadLocalData();
+  }
+  
+  // Start server regardless of database connection
+  const PORT = process.env.PORT || 5001;
+  const HOST = '0.0.0.0'; // Bind to all network interfaces
+  
+  app.listen(PORT, HOST, () => {
+    console.log(`🚀 Server running on ${HOST}:${PORT}`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`📊 Database: ${useLocalData ? 'Local JSON (fallback)' : 'MongoDB'}`);
+    console.log(`🔒 CORS Origin: ${process.env.CORS_ORIGIN || 'Default'}`);
+    console.log(`🌐 Network Access: http://192.168.1.71:${PORT} (or your local IP)`);
+    
+    // Seed initial data after server starts (only if enabled and MongoDB is connected)
+    if (process.env.ENABLE_SEEDING !== 'false' && !useLocalData) {
+      // Add a small delay to ensure database is fully ready
+      setTimeout(() => {
+        seedInitialData();
+      }, 1000);
+    } else if (useLocalData) {
+      console.log('🌱 Using local data, seeding not required');
+    } else {
+      console.log('🌱 Seeding disabled via environment variable');
+    }
+  });
+}
+
+// Start the server
+startServer();
